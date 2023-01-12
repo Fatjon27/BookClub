@@ -59,23 +59,28 @@ public class HomeController {
         return "redirect:/";
     }
     @GetMapping("/dashboard")
-    public String dashboard(HttpSession session,Model model){
+    public String dashboard(HttpSession session,Model model) {
         Long loggedInUserId = (Long) session.getAttribute("loggedInUserId");
-        ArrayList<Book> books = new ArrayList<Book>() ;
-        if(loggedInUserId==null){
+//        ArrayList<Book> books = new ArrayList<Book>() ;
+        if (loggedInUserId == null) {
             return "redirect:/";
-        }
-        else {
+        } else {
             User loggedInUser = userService.findById(loggedInUserId);
-            List<User> users = userService.findAll();
-            for(User i : users){
-                for(Book books1: i.getBooks()) {
-                    books.add(books1);
+//            List<User> users = userService.findAll();
+//            for(User i : users){
+//                for(Book books1: i.getBooks()) {
+//                    books.add(books1);
+
+            ArrayList<Book> books = new ArrayList<Book>();
+            for (Book book : bookService.findAll()) {
+                if (!loggedInUser.equals(book.getBorrower())) {
+                    books.add(book);
                 }
             }
-            model.addAttribute("books",books);
-            model.addAttribute("user",loggedInUser);
-            return "dashboard";
+                model.addAttribute("books", books);
+                model.addAttribute("user", loggedInUser);
+                return "dashboard";
+
         }
     }
 
@@ -112,5 +117,55 @@ public class HomeController {
             model.addAttribute("creator","You are the author of this post");
         }
         return "bookDetails";
+    }
+    @DeleteMapping("/delete/{id}")
+    public String deleteBook(@PathVariable("id") Long id){
+        bookService.deleteById(id);
+        return "redirect:/dashboard";
+    }
+
+    @GetMapping("/books/{id}/edit")
+    public String edit(Model model,@PathVariable("id") Long id){
+        Book book = bookService.findById(id);
+        model.addAttribute("book",book);
+        return "edit";
+    }
+    @PutMapping("/books/{id}/edit")
+    public String update(HttpSession session,Model model,@Valid @ModelAttribute("book")Book book,BindingResult result){
+        if (result.hasErrors()){
+            return "edit";
+        }
+        else {
+            bookService.update(book);
+            book.setUser(userService.findById((Long) session.getAttribute("loggedInUserId")));
+            book.setPostedBy(userService.findById((Long) session.getAttribute("loggedInUserId")).getName());
+            bookService.update(book);
+            return "redirect:/dashboard";
+        }
+    }
+//    @GetMapping("/books/borrow/{id}")
+//    public String borrow(@PathVariable("id") Long id,HttpSession session){
+//        Long loggedInUserId = (Long) session.getAttribute("loggedInUserId");
+//        User user = userService.findById(id);
+//        Book book = bookService.findById(id);
+//        book.setBorrower(user);
+//        bookService.update(book);
+//        return "redirect:/dashboard";
+//    }
+    @GetMapping("/books/borrow/{id}")
+    public String borrowBook(@PathVariable("id") Long id,HttpSession session){
+        Book book = bookService.findById(id);
+        book.setBorrower(userService.findById((Long) session.getAttribute("loggedInUserId")));
+        bookService.update(book);
+        return "redirect:/dashboard";
+    }
+    @GetMapping("/books/return/{id}")
+    public String returnBook(@PathVariable("id") Long id,HttpSession session){
+        Long loggedInUserId = (Long) session.getAttribute("loggedInUserId");
+        User user = userService.findById(id);
+        Book book = bookService.findById(id);
+        book.setBorrower(null);
+        bookService.update(book);
+        return "redirect:/dashboard";
     }
 }

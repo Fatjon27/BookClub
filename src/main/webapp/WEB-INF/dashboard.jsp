@@ -35,6 +35,7 @@
                 <th scope="col">Title</th>
                 <th scope="col">Author Name</th>
                 <th scope="col">Posted By</th>
+                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -44,8 +45,33 @@
                     <td><a href="/books/${book.id}"><c:out value="${book.title}"/></a></td>
                     <td><c:out value="${book.author}"/></td>
                     <td><c:out value="${book.postedBy}"/></td>
+                    <c:if test="${user.equals(book.user)}"><td> <a href="/books/${book.id}/edit">edit</a> <form:form action="/delete/${book.id}" method="delete"><input type="submit" value="Delete"></form:form></c:if>
+                    <c:if test="${!user.equals(book.user) && !user.equals(book.borrower)}"><td><a href="/books/borrow/${book.id}">borrow</a> </td></c:if>
                 </tr>
             </c:forEach>
+        </tbody>
+    </table>
+    <hr>
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Title</th>
+            <th scope="col">Author Name</th>
+            <th scope="col">Posted By</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach items="${user.borrowedBooks}" var="book">
+            <tr>
+                <td><c:out value="${book.id}"/></td>
+                <td><a href="/books/${book.id}"><c:out value="${book.title}"/></a></td>
+                <td><c:out value="${book.author}"/></td>
+                <td><c:out value="${book.postedBy}"/></td>
+                <td><a href="/books/return/${book.id}">return</a></td>
+            </tr>
+        </c:forEach>
         </tbody>
     </table>
 </body>

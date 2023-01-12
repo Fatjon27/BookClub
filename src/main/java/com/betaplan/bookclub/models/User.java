@@ -32,6 +32,8 @@ public class User {
     private Date updatedAt;
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Book> books;
+    @OneToMany(mappedBy = "borrower",fetch = FetchType.LAZY)
+    private List<Book> borrowedBooks;
     public User(){
     }
     public User(String name,String email,String password,String confirm){
@@ -95,6 +97,14 @@ public class User {
 
     public void setBooks(List<Book> books) {
         this.books = books;
+    }
+
+    public List<Book> getBorrowedBooks() {
+        return borrowedBooks;
+    }
+
+    public void setBorrowedBooks(List<Book> borrowedBooks) {
+        this.borrowedBooks = borrowedBooks;
     }
 
     @PrePersist

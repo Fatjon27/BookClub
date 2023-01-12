@@ -24,6 +24,9 @@ public class Book {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "borrower_id")
+    private User borrower;
     @Column(updatable = false)
     private Date createdAt;
     private Date updatedAt;
@@ -56,6 +59,14 @@ public class Book {
 
     public User getUser() {
         return user;
+    }
+
+    public User getBorrower() {
+        return borrower;
+    }
+
+    public void setBorrower(User borrower) {
+        this.borrower = borrower;
     }
 
     public void setUser(User user) {
